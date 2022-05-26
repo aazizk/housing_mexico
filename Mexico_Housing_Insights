@@ -1,0 +1,52 @@
+#groupby state and price_usd using mean price, sort descending
+mean_price_by_state = df.groupby("state")["price_usd"].mean().sort_values(ascending=False)
+mean_price_by_state
+
+#bar plot using pandas, pandas can use plt functionalities as well
+mean_price_by_state.plot(
+    kind="bar",
+    xlabel="State",
+    ylabel="Price[USD]",
+    title="Mean House Price by State"
+);
+
+#adding a new feature
+df["price_per_m2"] = df["price_usd"] / df["area_m2"]
+
+#use of groupby and plot together
+mean_price_per_m2_by_state = (
+    df.groupby("state")["price_per_m2"].mean().sort_values(ascending=False)
+    .plot(
+    kind="bar",
+    xlabel="State",
+    ylabel="price_per_m2",
+    title="Mean House Price per m2 by State"
+    )
+);
+
+#scatter plot to explore correlation
+plt.scatter(df["area_m2"], df["price_usd"])
+plt.xlabel("Area")
+plt.ylabel("Price")
+plt.title("Price vs Area")
+
+#calculating actual correlation
+p_correlation = df["area_m2"].corr(df["price_usd"])
+#check if all OK
+print(p_correlation)
+
+#going inside, selecting a state, above scatter plot and correlation can be applied on the selection to verify the hypothesis
+df_morelos = df[df["state"]== "Morelos"]
+
+#doing it all together
+# Subset `df` to include only observations from `"Distrito Federal"`
+df_mexico_city = df[df["state"]=="Distrito Federal"]
+
+# Create a scatter plot price vs area
+plt.scatter(df_mexico_city["area_m2"], df_mexico_city["price_usd"])
+plt.xlabel("Area")
+plt.ylabel("Price")
+plt.title("Area vs Price");
+
+p_correlation = df_mexico_city["area_m2"].corr(df_mexico_city["price_usd"])
+print(p_correlation)
