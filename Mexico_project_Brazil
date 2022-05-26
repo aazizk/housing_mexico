@@ -1,0 +1,104 @@
+#WQU project grader, I got all 19 marks, alhumdulillah
+import wqet_grader
+
+wqet_grader.init("Project 1 Assessment")
+
+# Import Matplotlib, pandas, and plotly
+import matplotlib.pyplot as plt
+import pandas as pd
+import plotly.express as px
+
+#Read Data
+df1 = pd.read_csv("data/brasil-real-estate-1.csv")
+#check using head, df.info() and df.shape
+df1.head()
+
+df1.dropna(inplace = True) #drop NA observations
+
+df1[["lat", "lon"]] = df1["lat-lon"].str.split(",", expand=True).astype("float") #splitting lat and long and making it float
+
+df1["state"] = df1["place_with_parent_names"].str.split("|", expand=True)[2] #getting state column splitted
+
+df1["price_usd"] = df1["price_usd"].str.replace("$","", regex=False) #data clean
+df1["price_usd"] = df1["price_usd"].str.replace(",","").astype("float")
+df1.head() #check if all OK
+
+df1.drop(["lat-lon", "place_with_parent_names"], axis = "columns", inplace = True) #drop extra columns
+
+df2 = pd.read_csv("data/brasil-real-estate-2.csv") #import second file
+
+df2["price_usd"] = df2["price_brl"]/3.19 #convert currency to USD
+
+df2.dropna(inplace=True)
+df2.drop("price_brl", axis = "columns", inplace = True) #data cleaning
+
+df = pd.concat([df1, df2]) @concatenate
+print("df shape:", df.shape) #check if all OK
+
+fig = px.scatter_mapbox( #create mapbox
+    df1,
+    lat="lat",
+    lon="lon",
+    center={"lat": -14.2, "lon": -51.9},  # Map will be centered on Brazil
+    width=600,
+    height=600,
+    hover_data=["price_usd"],  # Display price when hovering mouse over house
+)
+
+fig.update_layout(mapbox_style="open-street-map")
+
+fig.show()
+
+summary_stats = df.describe()[["area_m2", "price_usd"]]
+summary_stats
+
+plt.hist(df["price_usd"]) #histogram
+plt.xlabel("Price [USD]")
+plt.ylabel("Frequency")
+plt.title("Distribution of Home Prices")
+# Don't change the code below, this is for WQU to verify
+plt.savefig("images/1-5-12.png", dpi=150
+
+plt.boxplot(df["area_m2"]) #boxplot
+plt.xlabel("Area [sq meters]")
+plt.title("Distribution of Home Sizes")
+# Don't change the code below
+plt.savefig("images/1-5-13.png", dpi=150)
+
+mean_price_by_region = df.groupby("region")["price_usd"].mean().sort_values(ascending = True) #groupby region
+mean_price_by_region #check if it is as per your understanding
+
+mean_price_by_region.plot( #bar plot
+    kind = "bar",
+    xlabel="Region",
+    ylabel="Mean Price[USD]",
+    title="Mean Home Price by Region"        
+)
+# Don't change the code below
+plt.savefig("images/1-5-15.png", dpi=150)
+
+df_south = df[df["region"]=="South"] #selecting south df
+df_south.head() #check if all OK
+
+homes_by_state = df_south["state"].value_counts() #couting homes per state in South
+homes_by_state #check if all OK
+
+df_Rio = df[df["state"]=="Rio Grande do Sul"] #plotting the state with highest homes
+plt.scatter(df_Rio["area_m2"], df_Rio["price_usd"])
+plt.xlabel("Area [sq meters]")
+plt.ylabel("Price [USD]")
+plt.title("Rio Grande do Sul: Price vs. Area");
+# Don't change the code below
+plt.savefig("images/1-5-18.png", dpi=150)
+
+#finding correlation of south states
+South_states = [] #initialize array
+south_corr= [] #initialize array
+for states in df_south["state"].unique(): #getting the names of the states
+        df_city = df[df["state"]==states] #selecting the state df
+        corr = df_city["area_m2"].corr(df_city["price_usd"]) #finding correlation
+        South_states.append(states) #appending state name
+        south_corr.append(corr) #appending its respevtive correlation
+
+south_states_corr = zip(South_states, south_corr) #zioong the data at one variable
+print(list(south_states_corr)) #printing zip as list
