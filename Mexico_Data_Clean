@@ -1,0 +1,35 @@
+#Drop NA values/observations
+df1.dropna(inplace= True)
+#remove $ sign, , sign and make it float
+df1["price_usd"] = (
+
+    df1["price_usd"]
+    .str.replace("$", "", regex = False)
+    .str.replace(",", "")
+    .astype(float)
+)
+#check if all OK
+df1.head()
+
+#convert piso to usd and create price_usd column
+df2["price_usd"] = (
+
+    df2["price_mxn"] / 19
+)
+#drop price_mxn column
+df2 = df2.drop("price_mxn", axis = "columns")
+#check if all OK
+df2.head()
+
+#split a joined column in two columns
+df3[["lat", "lon"]] = df3["lat-lon"].str.split(",", expand=True)
+
+#concatenate multiple Datarames
+df = pd.concat([df1,df2,df3])
+
+#check if all OK
+print(df.shape)
+df.head()
+
+#write data to a csv file, Index is False so that extra index column is not added
+df.to_csv("data/mexico-real-estate-clean.csv", index=False)
